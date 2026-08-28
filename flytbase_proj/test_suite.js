@@ -30,6 +30,19 @@ if (parsedBlocker.sentiment === 'blocker' && parsedBlocker.isBlocker === true) {
   throw new Error("Test 2 Failed: Did not detect blocker correctly");
 }
 
+// Test 2b: Milestone linking picks the best-overlap milestone, not the first weak match
+console.log(`\n[Test 2b] Milestone Link Disambiguation:`);
+const ambiguous = parseUnstructuredUpdate(
+  "Manhattan rooftop landing permits approved; thermal testing on hold.",
+  initialProjects.find(p => p.id === "proj-2")
+);
+console.log(`- Linked milestone: ${ambiguous.targetMilestoneTitle}`);
+if (/Manhattan/.test(ambiguous.targetMilestoneTitle || "")) {
+  console.log("✓ Test 2b Passed: Best-overlap milestone chosen over first weak match.");
+} else {
+  throw new Error("Test 2b Failed: Mislinked to " + ambiguous.targetMilestoneTitle);
+}
+
 // Test 3: AI Parser on Positive Resolution
 console.log(`\n[Test 3] AI NLP Unstructured Ingestion (Resolution Scenario):`);
 const resolveText = "Rain simulation test round 3 completed with success. All clear! Issue ISS-1 is resolved.";

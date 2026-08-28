@@ -63,16 +63,22 @@ export function parseUnstructuredUpdate(rawText, activeProject, allOwners = []) 
   const mainSentence = sentences[0] || rawText.slice(0, 100);
   const structuredSummary = mainSentence.length > 120 ? mainSentence.slice(0, 117) + "..." : mainSentence;
 
-  // 5. Detect linked milestone in active project
+  // 5. Detect linked milestone: pick the milestone with the most overlapping
+  // distinctive words, not the first that shares any word. Matching on any word
+  // (e.g. "with", "customer") linked updates to the wrong milestone.
+  const STOPWORDS = new Set(['with', 'from', 'this', 'that', 'into', 'under', 'over', 'when', 'your', 'their', 'across', 'live']);
+  const textWords = new Set(textLower.split(/[^a-z0-9]+/).filter(Boolean));
   let targetMilestoneId = null;
   let targetMilestoneTitle = null;
   if (activeProject && activeProject.milestones) {
+    let bestScore = 0;
     for (const ms of activeProject.milestones) {
-      const msWords = ms.title.toLowerCase().split(' ').filter(w => w.length > 3);
-      if (msWords.some(w => textLower.includes(w))) {
+      const msWords = ms.title.toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 3 && !STOPWORDS.has(w));
+      const score = msWords.filter(w => textWords.has(w)).length;
+      if (score > bestScore) {
+        bestScore = score;
         targetMilestoneId = ms.id;
         targetMilestoneTitle = ms.title;
-        break;
       }
     }
   }
