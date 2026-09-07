@@ -1,0 +1,6 @@
+# OS junk
+.DS_Store
+
+# Nested project — the CV hackathon project is its own git repo
+# (remote: flybase_hackathon_cv). Tracked there, not here.
+abhinav_project_flytbase_hackathon_cv/
